@@ -3,6 +3,7 @@ import redis
 import sqlite3
 import asyncio
 import json
+import xml.etree.ElementTree as ET
 import platform
 import aiohttp
 import time
@@ -95,6 +96,34 @@ def getCategories(parentCategoryDict,allCategoriesDict):
         if lastCategory == False:
             getCategories(ownCategoriesDict,allCategoriesDict)
 
+def getNonExistCategories(CategoriesDict):
+    url = "https://trendyol.com"
+    page_sources = {}
+    url_list = {}
+    for i in CategoriesDict:
+        url_list[CategoriesDict[i].tyid]= url + CategoriesDict[i].tylink
+
+    asyncio.run(download_all(url_list,page_sources))
+    end = time.time()
+    print(f'download {len(url_list)} links in {end - start} seconds')
+
+    for id,source in page_sources.items():
+        lastCategory = False
+        soup = BeautifulSoup(source, 'html.parser')
+
+        categoriesTags = (soup.find("div",{"data-partial-fragment-name":"MarketingSearch"})).find_all("a")
+
+        if len(categoriesTags) == 0:
+            print("last Category")
+        else:
+            #print(categoriesTags[-2]["href"],categoriesTags[-1].getText())
+            CategoriesDict[id].setName(categoriesTags[-1].getText())
+            CategoriesDict[id].setParentId(((categoriesTags[-2]["href"]).split("-x-c"))[-1])
+
+            print(CategoriesDict[id].name,CategoriesDict[id].tyid,CategoriesDict[id].tylink,CategoriesDict[id].parent_category_id)
+    
+    getCategories(CategoriesDict,CategoriesDict)
+
 
 
 
@@ -114,7 +143,11 @@ mainCategoryIndexes = [{"name":"Aksesuar","id":"27","link":"/aksesuar-x-c27"},
 {"name":"Süpermarket","id":"103799","link":"/supermarket-x-c103799"},
 {"name":"Anne & Bebek & Çocuk","id":"144835","link":"/anne--bebek--cocuk-x-c144835"},
 {"name":"Spor & Outdoor","id":"104593","link":"/spor-outdoor-x-c104593"},
-{"name":"Dijital Ürünler","id":"144649","link":"/digital-goods-x-c144649"},]
+{"name":"Dijital Ürünler","id":"144649","link":"/digital-goods-x-c144649"},
+{"name":"Bahçe & Yapı Market","id":"103719","link":"/bahce-yapi-market-x-c103719"},
+{"name":"Hamile Giyim","id":"104625","link":"/hamile-giyim-x-c104625"},
+{"name":"Su","id":"104006","link":"/su-x-c104006"},
+{"name":"Müzik","id":"1357","link":"/muzik-x-c1357"},]
 
 ownCategoriesDict = {}
 
@@ -136,12 +169,11 @@ for i in allCategoriesDict:
 
 
 
-#---------------------------------------------------------------------------------
+# #---------------------------------------------------------------------------------
 
 page_sources = {}
 url_list = {"1":"https://www.trendyol.com"}
 allCategoriesDict2 = {}
-ownCategoriesDict2 = {}
 
 start = time.time()
 asyncio.run(download_all(url_list,page_sources))
@@ -171,12 +203,11 @@ for item in allCategoriesJson["items"]:
             id = (((child["Url"].split("-c"))[-1]).split("?"))[0]
             exist = red.hsetnx('categories',id,'1')
             if exist == 1:
-                    ownCategoriesDict2[id] = (category.Category(child["Name"],id,child["Url"]))
                     allCategoriesDict2[id] = (category.Category(child["Name"],id,child["Url"]))
             else:
                 print(child["Name"], "Already added!")
                 
-getCategories(ownCategoriesDict2,allCategoriesDict2)
+getCategories(allCategoriesDict2,allCategoriesDict2)
 
 for i in allCategoriesDict2:
     cur.execute("INSERT INTO categories(name, tylink, tyid, parent_category_id, last_category) VALUES (?, ?, ?, ?, ?)",
@@ -190,7 +221,6 @@ for i in allCategoriesDict2:
 page_sources = {}
 url_list = {"1":"https://www.trendyol.com"}
 allCategoriesDict2 = {}
-ownCategoriesDict2 = {}
 
 start = time.time()
 asyncio.run(download_all(url_list,page_sources))
@@ -221,18 +251,51 @@ for item in allCategoriesJson["items"]:
                 id = (((children["Url"].split("-c"))[-1]).split("?"))[0]
                 exist = red.hsetnx('categories',id,'1')
                 if exist == 1:
-                        ownCategoriesDict2[id] = (category.Category(children["Name"],id,children["Url"]))
                         allCategoriesDict2[id] = (category.Category(children["Name"],id,children["Url"]))
                 else:
                     print(children["Name"], "Already added!")
 
 
-getCategories(ownCategoriesDict2,allCategoriesDict2)
+getCategories(allCategoriesDict2,allCategoriesDict2)
 
 for i in allCategoriesDict2:
     cur.execute("INSERT INTO categories(name, tylink, tyid, parent_category_id, last_category) VALUES (?, ?, ?, ?, ?)",
         (allCategoriesDict2[i].name,allCategoriesDict2[i].tylink,allCategoriesDict2[i].tyid,allCategoriesDict2[i].parent_category_id,allCategoriesDict2[i].last_category))
 
+
+#------------------------------------------------------------------------------------------------
+
+page_sources = {}
+url_list = {"1":"https://www.trendyol.com/sitemap_categories.xml"}
+
+CategoriesDict = {}
+
+start = time.time()
+asyncio.run(download_all(url_list,page_sources))
+end = time.time()
+print(f'download {len(url_list)} links in {end - start} seconds')
+
+for id,source in page_sources.items():
+    root = ET.fromstring(source)
+
+    for child in root:
+        for loc in child:
+            link = ((loc.text).split(".com"))[1]
+            linkId = link.split("-x-c")[-1]
+
+            exist = red.hexists('categories',linkId)
+            if exist == False:
+                CategoriesDict[linkId] = category.Category(tyid=linkId,tylink=link)
+                red.hsetnx('categories',linkId,'1')
+
+# for id,cat in CategoriesDict.items():
+#     print(id, cat.tyid,cat.tylink)
+
+getNonExistCategories(CategoriesDict)
+
+for i in CategoriesDict:
+    cur.execute("INSERT INTO categories(name, tylink, tyid, parent_category_id, last_category) VALUES (?, ?, ?, ?, ?)",
+        (CategoriesDict[i].name,CategoriesDict[i].tylink,CategoriesDict[i].tyid,CategoriesDict[i].parent_category_id,CategoriesDict[i].last_category))
 
 con.commit()
 con.close()
