@@ -1,4 +1,3 @@
-import re
 
 class Category:
     def __init__(self,name = None, tyid = None, tylink = None, parent_category_id = None, last_category = 0):
