@@ -22,7 +22,6 @@ cur.execute('''CREATE TABLE IF NOT EXISTS categories
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-
 async def download_link(url:str,id:str,session:ClientSession,page_sources:dict):
     errorCounter = 0
     while True:
@@ -83,8 +82,6 @@ def getCategories(parentCategoryDict,allCategoriesDict):
                                     continue
                                 exist = red.hsetnx('categories',cat["id"],'1')
                                 if exist == 1:
-                                    # cur.execute("INSERT INTO categories(name, tylink, tyid, parent_category_id) VALUES (?, ?, ?, ?)",
-                                    #     (cat["text"],cat["url"],cat["id"],id))
                                     allCategoriesDict[cat["id"]] = (category.Category(cat["text"],cat["id"],cat["url"],id))
                                     ownCategoriesDict[cat["id"]] = (category.Category(cat["text"],cat["id"],cat["url"],id))
 
@@ -116,18 +113,12 @@ def getNonExistCategories(CategoriesDict):
         if len(categoriesTags) == 0:
             print("last Category")
         else:
-            #print(categoriesTags[-2]["href"],categoriesTags[-1].getText())
             CategoriesDict[id].setName(categoriesTags[-1].getText())
             CategoriesDict[id].setParentId(((categoriesTags[-2]["href"]).split("-x-c"))[-1])
 
             print(CategoriesDict[id].name,CategoriesDict[id].tyid,CategoriesDict[id].tylink,CategoriesDict[id].parent_category_id)
 
     getCategories(CategoriesDict,CategoriesDict)
-
-
-
-
-
 
 #---------------------------------------------------------------------------------
 
@@ -166,8 +157,6 @@ getCategories(ownCategoriesDict,allCategoriesDict)
 for i in allCategoriesDict:
     cur.execute("INSERT INTO categories(name, tylink, tyid, parent_category_id, last_category) VALUES (?, ?, ?, ?, ?)",
         (allCategoriesDict[i].name,allCategoriesDict[i].tylink,allCategoriesDict[i].tyid,allCategoriesDict[i].parent_category_id,allCategoriesDict[i].last_category))
-
-
 
 # #---------------------------------------------------------------------------------
 
@@ -212,9 +201,6 @@ getCategories(allCategoriesDict2,allCategoriesDict2)
 for i in allCategoriesDict2:
     cur.execute("INSERT INTO categories(name, tylink, tyid, parent_category_id, last_category) VALUES (?, ?, ?, ?, ?)",
         (allCategoriesDict2[i].name,allCategoriesDict2[i].tylink,allCategoriesDict2[i].tyid,allCategoriesDict2[i].parent_category_id,allCategoriesDict2[i].last_category))
-
-
-
 
 #---------------------------------------------------------------------------------
 
@@ -262,7 +248,6 @@ for i in allCategoriesDict2:
     cur.execute("INSERT INTO categories(name, tylink, tyid, parent_category_id, last_category) VALUES (?, ?, ?, ?, ?)",
         (allCategoriesDict2[i].name,allCategoriesDict2[i].tylink,allCategoriesDict2[i].tyid,allCategoriesDict2[i].parent_category_id,allCategoriesDict2[i].last_category))
 
-
 #------------------------------------------------------------------------------------------------
 
 page_sources = {}
@@ -287,9 +272,6 @@ for id,source in page_sources.items():
             if exist is False:
                 CategoriesDict[linkId] = category.Category(tyid=linkId,tylink=link)
                 red.hsetnx('categories',linkId,'1')
-
-# for id,cat in CategoriesDict.items():
-#     print(id, cat.tyid,cat.tylink)
 
 getNonExistCategories(CategoriesDict)
 
