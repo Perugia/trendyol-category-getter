@@ -83,8 +83,6 @@ def getCategories(parentCategoryDict,allCategoriesDict):
                                     continue
                                 exist = red.hsetnx('categories',cat["id"],'1')
                                 if exist == 1:
-                                    # cur.execute("INSERT INTO categories(name, tylink, tyid, parent_category_id) VALUES (?, ?, ?, ?)",
-                                    #     (cat["text"],cat["url"],cat["id"],id))
                                     allCategoriesDict[cat["id"]] = (category.Category(cat["text"],cat["id"],cat["url"],id))
                                     ownCategoriesDict[cat["id"]] = (category.Category(cat["text"],cat["id"],cat["url"],id))
                                     
@@ -116,7 +114,6 @@ def getNonExistCategories(CategoriesDict):
         if len(categoriesTags) == 0:
             print("last Category")
         else:
-            #print(categoriesTags[-2]["href"],categoriesTags[-1].getText())
             CategoriesDict[id].setName(categoriesTags[-1].getText())
             CategoriesDict[id].setParentId(((categoriesTags[-2]["href"]).split("-x-c"))[-1])
 
@@ -288,8 +285,6 @@ for id,source in page_sources.items():
                 CategoriesDict[linkId] = category.Category(tyid=linkId,tylink=link)
                 red.hsetnx('categories',linkId,'1')
 
-# for id,cat in CategoriesDict.items():
-#     print(id, cat.tyid,cat.tylink)
 
 getNonExistCategories(CategoriesDict)
 
