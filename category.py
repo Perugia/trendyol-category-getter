@@ -11,13 +11,13 @@ class Category:
         self.parent_category_id = parent_category_id
         self.last_category = last_category
         self.tylink = tylink
-    
+
 
     def setLastCategory(self):
         self.last_category = 1
 
     def setName(self,name):
         self.name = name
-    
+
     def setParentId(self,id):
         self.parent_category_id = id
