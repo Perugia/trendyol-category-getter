@@ -154,9 +154,9 @@ for i in mainCategoryIndexes:
 
 getCategories(ownCategoriesDict,allCategoriesDict)
 
-for i in allCategoriesDict:
+for k,v in allCategoriesDict.items():
     cur.execute("INSERT INTO categories(name, tylink, tyid, parent_category_id, last_category) VALUES (?, ?, ?, ?, ?)",
-        (allCategoriesDict[i].name,allCategoriesDict[i].tylink,allCategoriesDict[i].tyid,allCategoriesDict[i].parent_category_id,allCategoriesDict[i].last_category))
+        (v.name, v.tylink, v.tyid, v.parent_category_id, v.last_category))
 
 # #---------------------------------------------------------------------------------
 
@@ -244,9 +244,9 @@ for item in allCategoriesJson["items"]:
 
 getCategories(allCategoriesDict2,allCategoriesDict2)
 
-for i in allCategoriesDict2:
+for k,v in allCategoriesDict2.items():
     cur.execute("INSERT INTO categories(name, tylink, tyid, parent_category_id, last_category) VALUES (?, ?, ?, ?, ?)",
-        (allCategoriesDict2[i].name,allCategoriesDict2[i].tylink,allCategoriesDict2[i].tyid,allCategoriesDict2[i].parent_category_id,allCategoriesDict2[i].last_category))
+        (v.name, v.tylink, v.tyid, v.parent_category_id, v.last_category))
 
 #------------------------------------------------------------------------------------------------
 
