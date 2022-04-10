@@ -198,15 +198,15 @@ for item in allCategoriesJson["items"]:
 
 getCategories(allCategoriesDict2,allCategoriesDict2)
 
-for i in allCategoriesDict2:
+for k,v in allCategoriesDict2.items():
     cur.execute("INSERT INTO categories(name, tylink, tyid, parent_category_id, last_category) VALUES (?, ?, ?, ?, ?)",
-        (allCategoriesDict2[i].name,allCategoriesDict2[i].tylink,allCategoriesDict2[i].tyid,allCategoriesDict2[i].parent_category_id,allCategoriesDict2[i].last_category))
+        (v.name, v.tylink, v.tyid, v.parent_category_id, v.last_category))
 
 #---------------------------------------------------------------------------------
 
 page_sources = {}
 url_list = {"1":"https://www.trendyol.com"}
-allCategoriesDict2 = {}
+allCategoriesDict3 = {}
 
 start = time.time()
 asyncio.run(download_all(url_list,page_sources))
@@ -237,14 +237,14 @@ for item in allCategoriesJson["items"]:
                 id = (((children["Url"].split("-c"))[-1]).split("?"))[0]
                 exist = red.hsetnx('categories',id,'1')
                 if exist == 1:
-                        allCategoriesDict2[id] = (category.Category(children["Name"],id,children["Url"]))
+                        allCategoriesDict3[id] = (category.Category(children["Name"],id,children["Url"]))
                 else:
                     print(children["Name"], "Already added!")
 
 
-getCategories(allCategoriesDict2,allCategoriesDict2)
+getCategories(allCategoriesDict3,allCategoriesDict3)
 
-for k,v in allCategoriesDict2.items():
+for k,v in allCategoriesDict3.items():
     cur.execute("INSERT INTO categories(name, tylink, tyid, parent_category_id, last_category) VALUES (?, ?, ?, ?, ?)",
         (v.name, v.tylink, v.tyid, v.parent_category_id, v.last_category))
 
@@ -275,9 +275,9 @@ for id,source in page_sources.items():
 
 getNonExistCategories(CategoriesDict)
 
-for i in CategoriesDict:
+for k,v in CategoriesDict.items():
     cur.execute("INSERT INTO categories(name, tylink, tyid, parent_category_id, last_category) VALUES (?, ?, ?, ?, ?)",
-        (CategoriesDict[i].name,CategoriesDict[i].tylink,CategoriesDict[i].tyid,CategoriesDict[i].parent_category_id,CategoriesDict[i].last_category))
+        (v.name, v.tylink, v.tyid, v.parent_category_id, v.last_category))
 
 con.commit()
 con.close()
