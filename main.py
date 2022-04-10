@@ -69,7 +69,7 @@ def getCategories(parentCategoryDict,allCategoriesDict):
         except:
             print(str(soup))
 
-        if aggregationsJson["result"] != None:
+        if aggregationsJson["result"] is not None:
             for aggregations in aggregationsJson["result"]["aggregations"]:
                 if aggregations["group"] == "CATEGORY":
                     try:
@@ -93,7 +93,7 @@ def getCategories(parentCategoryDict,allCategoriesDict):
 
                     except Exception:
                         print("------------------------------------",id,Exception)
-        if lastCategory == False:
+        if lastCategory is False:
             getCategories(ownCategoriesDict,allCategoriesDict)
 
 def getNonExistCategories(CategoriesDict):
@@ -284,7 +284,7 @@ for id,source in page_sources.items():
             linkId = link.split("-x-c")[-1]
 
             exist = red.hexists('categories',linkId)
-            if exist == False:
+            if exist is False:
                 CategoriesDict[linkId] = category.Category(tyid=linkId,tylink=link)
                 red.hsetnx('categories',linkId,'1')
 
