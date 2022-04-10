@@ -2,7 +2,7 @@ import re
 
 class Category:
     def __init__(self,name = None, tyid = None, tylink = None, parent_category_id = None, last_category = 0):
-        if name == None:
+        if name is None:
             self.name = None
         else:
             self.name = (name.replace(" &amp; "," & ")).replace("&amp;"," & ")
