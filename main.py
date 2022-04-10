@@ -87,7 +87,7 @@ def getCategories(parentCategoryDict,allCategoriesDict):
                                     #     (cat["text"],cat["url"],cat["id"],id))
                                     allCategoriesDict[cat["id"]] = (category.Category(cat["text"],cat["id"],cat["url"],id))
                                     ownCategoriesDict[cat["id"]] = (category.Category(cat["text"],cat["id"],cat["url"],id))
-                                    
+
                                 else:
                                     print(cat["text"], "Already added!")
 
@@ -121,7 +121,7 @@ def getNonExistCategories(CategoriesDict):
             CategoriesDict[id].setParentId(((categoriesTags[-2]["href"]).split("-x-c"))[-1])
 
             print(CategoriesDict[id].name,CategoriesDict[id].tyid,CategoriesDict[id].tylink,CategoriesDict[id].parent_category_id)
-    
+
     getCategories(CategoriesDict,CategoriesDict)
 
 
@@ -185,7 +185,7 @@ for id,source in page_sources.items():
 
     scripts = soup.find_all("script",type="application/javascript")
     for sc in scripts:
-        
+
         if "window.__NAVIGATION_APP_INITIAL_STATE_V2__" in str(sc.getText()):
             script = sc
             replaceText = "window.__NAVIGATION_APP_INITIAL_STATE_V2__="
@@ -193,20 +193,20 @@ for id,source in page_sources.items():
             productListJson = productListJson[:-1]
 
             allCategoriesJson = json.loads(productListJson)
-            
+
 for item in allCategoriesJson["items"]:
     for column in item["Children"]:
         for child in column["Children"]:
             if ("-x-c" not in child["Url"]):
                 continue
-        
+
             id = (((child["Url"].split("-c"))[-1]).split("?"))[0]
             exist = red.hsetnx('categories',id,'1')
             if exist == 1:
                     allCategoriesDict2[id] = (category.Category(child["Name"],id,child["Url"]))
             else:
                 print(child["Name"], "Already added!")
-                
+
 getCategories(allCategoriesDict2,allCategoriesDict2)
 
 for i in allCategoriesDict2:
@@ -232,7 +232,7 @@ for id,source in page_sources.items():
 
     scripts = soup.find_all("script",type="application/javascript")
     for sc in scripts:
-        
+
         if "window.__NAVIGATION_APP_INITIAL_STATE_V2__" in str(sc.getText()):
             script = sc
             replaceText = "window.__NAVIGATION_APP_INITIAL_STATE_V2__="
@@ -240,14 +240,14 @@ for id,source in page_sources.items():
             productListJson = productListJson[:-1]
 
             allCategoriesJson = json.loads(productListJson)
-            
+
 for item in allCategoriesJson["items"]:
     for column in item["Children"]:
         for child in column["Children"]:
             for children in child["Children"]:
                 if ("-x-c" not in children["Url"]):
                     continue
-        
+
                 id = (((children["Url"].split("-c"))[-1]).split("?"))[0]
                 exist = red.hsetnx('categories',id,'1')
                 if exist == 1:
