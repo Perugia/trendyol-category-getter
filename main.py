@@ -78,7 +78,7 @@ def getCategories(parentCategoryDict,allCategoriesDict):
                                 print("-------------------LAST CATEGORY-----------------------",id)
                         else:
                             for cat in aggregations["values"]:
-                                if ("-x-c" not in cat["url"]):
+                                if "-x-c" not in cat["url"]:
                                     continue
                                 exist = red.hsetnx('categories',cat["id"],'1')
                                 if exist == 1:
@@ -186,7 +186,7 @@ for id,source in page_sources.items():
 for item in allCategoriesJson["items"]:
     for column in item["Children"]:
         for child in column["Children"]:
-            if ("-x-c" not in child["Url"]):
+            if "-x-c" not in child["Url"]:
                 continue
 
             id = (((child["Url"].split("-c"))[-1]).split("?"))[0]
@@ -231,7 +231,7 @@ for item in allCategoriesJson["items"]:
     for column in item["Children"]:
         for child in column["Children"]:
             for children in child["Children"]:
-                if ("-x-c" not in children["Url"]):
+                if "-x-c" not in children["Url"]:
                     continue
 
                 id = (((children["Url"].split("-c"))[-1]).split("?"))[0]
